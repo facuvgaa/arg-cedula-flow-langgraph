@@ -8,7 +8,7 @@ from domain.ports.vehicle_extractor_port import VehicleExtractorPort
 from domain.ports.vehicle_card_repository_port import VehicleCardRepositoryPort
 
 from infraestructure.adapters.mcp_insurance_client_adapter import McpInsuranceClientAdapter
-from infraestructure.workflows.langgraph.cedula_workflow_state import CedulaWorkflowState
+from infraestructure.workflows.langgraph.state.cedula_workflow_state import CedulaWorkflowState
 from infraestructure.workflows.langgraph.nodes.classify_and_extract_node import ClassifyAndExtractNode
 from infraestructure.workflows.langgraph.nodes.finalize_and_save import FinalizeAndSave
 from infraestructure.workflows.langgraph.nodes.calculate_quote_mcp_node import CalculateQuoteMcpNode

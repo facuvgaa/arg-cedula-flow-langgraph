@@ -13,7 +13,7 @@ from infraestructure.database.models import Base
 from infraestructure.database.session import AsyncSessionLocal, engine
 from infraestructure.factories.llm_extractor_factory import LlmExtractorFactory
 from infraestructure.factories.storage_factory import StorageFactory
-from infraestructure.workflows.langgraph.langgraph_workflow_adapter import (
+from infraestructure.adapters.langgraph_workflow_adapter import (
     LangGraphVehicleWorkflowAdapter,
 )
 

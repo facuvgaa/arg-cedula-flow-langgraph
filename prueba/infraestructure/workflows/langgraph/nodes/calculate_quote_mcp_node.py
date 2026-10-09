@@ -1,6 +1,6 @@
 from typing import Any, Dict
 from infraestructure.adapters.mcp_insurance_client_adapter import McpInsuranceClientAdapter
-from infraestructure.workflows.langgraph.cedula_workflow_state import CedulaWorkflowState
+from infraestructure.workflows.langgraph.state.cedula_workflow_state import CedulaWorkflowState
 
 class CalculateQuoteMcpNode:
     def __init__(self, mcp_client: McpInsuranceClientAdapter):

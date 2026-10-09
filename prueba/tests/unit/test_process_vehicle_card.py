@@ -4,7 +4,7 @@ from domain.ports.file_storage_port import FileStoragePort
 from domain.ports.vehicle_extractor_port import VehicleExtractorPort
 from domain.ports.vehicle_card_repository_port import VehicleCardRepositoryPort
 from infraestructure.adapters.mcp_insurance_client_adapter import McpInsuranceClientAdapter
-from infraestructure.workflows.langgraph.langgraph_workflow_adapter import LangGraphVehicleWorkflowAdapter
+from infraestructure.adapters.langgraph_workflow_adapter import LangGraphVehicleWorkflowAdapter
 
 @pytest.mark.asyncio
 async def test_workflow_extracts_and_triggers_mcp_quote():

@@ -4,7 +4,7 @@ from domain.models.car import Car
 from domain.models.owner import Owner
 from domain.models.vehicle_card import VehicleCard
 from domain.ports.vehicle_card_repository_port import VehicleCardRepositoryPort
-from infraestructure.workflows.langgraph.cedula_workflow_state import CedulaWorkflowState
+from infraestructure.workflows.langgraph.state.cedula_workflow_state import CedulaWorkflowState
 
 class FinalizeAndSave:
     def __init__(self, vehicle_repo: VehicleCardRepositoryPort):
