@@ -12,3 +12,4 @@ class Car:
     chassis_number: str
     motor_number: str
     expiration_date: str
+    year: Optional[int] = None

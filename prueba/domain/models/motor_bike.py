@@ -13,4 +13,4 @@ class MotorBike:
     engine_number: str
     expiration_date: str
     engine_cc: str
-
+    year: Optional[int] = None

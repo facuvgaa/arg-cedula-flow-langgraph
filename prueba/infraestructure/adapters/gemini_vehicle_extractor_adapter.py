@@ -17,6 +17,10 @@ class OwnerSchema(BaseModel):
     full_name: Optional[str] = Field(None, description="Nombre y apellido completo del titular, o null si no se observa")
     dni: Optional[str] = Field(None, description="Número de documento / DNI / CUIT del titular, o null si no se observa")
     address: Optional[str] = Field(None, description="Domicilio completo que figura en el reverso, o null si no se observa")
+    postal_code: Optional[str] = Field(
+        None,
+        description="Código postal de 4 dígitos deducido de la localidad/provincia del domicilio (ej: 4000 para Tucumán, 5000 para Córdoba, 1000 para CABA). Si no se puede deducir, null."
+    )
 
 class VehicleExtractionSchema(BaseModel):
     vehicle_category: Optional[Literal["CAR", "MOTOBIKE"]] = Field(
@@ -25,6 +29,7 @@ class VehicleExtractionSchema(BaseModel):
     domain: Optional[str] = Field(None, description="Patente / Dominio del vehículo, o null si no se observa")
     brand: Optional[str] = Field(None, description="Marca del vehículo, o null si no se observa")
     model: Optional[str] = Field(None, description="Modelo exacto, o null si no se observa")
+    year: Optional[int] = Field(None, description="Año de fabricación/modelo si figura explícito en el texto o modelo, o null")
     vehicle_type: Optional[str] = Field(None, description="Tipo de vehículo, o null si no se observa")
     use: Optional[str] = Field(None, description="Uso del vehículo, o null si no se observa")
     motor_number: Optional[str] = Field(None, description="Número de motor, o null si no se observa")
@@ -36,7 +41,7 @@ class VehicleExtractionSchema(BaseModel):
     owner: Optional[OwnerSchema] = Field(None, description="Datos del titular si están presentes en la imagen")
 
 class VehicleExtractorAdapter(VehicleExtractorPort):
-    def __init__(self, api_key: str, model_name: str = "gemini-3.5-flash"):
+    def __init__(self, api_key: str, model_name: str = "gemini-2.5-flash"):
         self._client = genai.Client(api_key=api_key)
         self._model_name = model_name.replace("models/", "")
 
@@ -67,12 +72,13 @@ class VehicleExtractorAdapter(VehicleExtractorPort):
         brand = clean_str(extracted.brand)
 
         vehicle_dict = None
-        # Solo se considera que se detectó el vehículo si tiene al menos dominio o motor o chasis
+        # Solo se considera que se detectó el vehículo si tiene al menos dominio o motor o chasis o marca
         if domain or motor or chassis or frame or brand:
             vehicle_dict = {
                 "dominio": domain,
                 "marca": brand,
                 "modelo": clean_str(extracted.model),
+                "year": extracted.year,
                 "tipo": clean_str(extracted.vehicle_type),
                 "uso": clean_str(extracted.use),
                 "chasis": chassis,
@@ -88,11 +94,13 @@ class VehicleExtractorAdapter(VehicleExtractorPort):
             full_name = clean_str(extracted.owner.full_name)
             dni = clean_str(extracted.owner.dni)
             address = clean_str(extracted.owner.address)
-            if full_name or dni or address:
+            postal_code = clean_str(extracted.owner.postal_code)
+            if full_name or dni or address or postal_code:
                 owner_dict = {
                     "nombre_completo": full_name,
                     "documento": dni,
                     "domicilio": address,
+                    "codigo_postal": postal_code,
                 }
 
         return {
