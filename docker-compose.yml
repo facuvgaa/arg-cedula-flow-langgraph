@@ -29,6 +29,21 @@ services:
     ports:
       - "6379:6379"
 
+  pricing-postgres:
+    image: postgres:15-alpine
+    container_name: pricing_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: pricing_db
+      POSTGRES_USER: pricing_user
+      POSTGRES_PASSWORD: pricing_secret
+    ports:
+      - "5433:5432"
+    volumes:
+      - pricing_pg_data:/var/lib/postgresql/data
+      - ./init-pricing.sql:/docker-entrypoint-initdb.d/init-pricing.sql
+
 volumes:
+  pricing_pg_data:
   minio_data:
   pgdata:
