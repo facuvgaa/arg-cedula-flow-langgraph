@@ -21,3 +21,14 @@ class CedulaWorkflowState(TypedDict, total=False):
 
     status: str
     message: Optional[str]
+
+    user_message: Optional[str]
+    chat_history: Optional[List[Dict[str,str]]]
+    
+    selected_coverage: Optional[str]
+
+    customer_email: Optional[str]
+    customer_phone: Optional[str]
+    
+
+    

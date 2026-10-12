@@ -15,6 +15,7 @@ class ProcessVehicleCardUseCase:
         mime_type: Optional[str] = None,
         year: Optional[int] = None,
         postal_code: Optional[str] = None,
+        user_message: Optional[str] = None,
     ) -> Dict[str, Any]:
         return await self._workflow_port.execute_step(
             session_id=session_id,
@@ -23,4 +24,5 @@ class ProcessVehicleCardUseCase:
             mime_type=mime_type,
             year=year,
             postal_code=postal_code,
+            user_message=user_message,
         )

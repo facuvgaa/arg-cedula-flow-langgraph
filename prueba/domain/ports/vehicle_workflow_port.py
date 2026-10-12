@@ -12,6 +12,7 @@ class VehicleWorkflowPort(ABC):
         file_name: Optional[str] = None,
         year: Optional[int] = None,
         postal_code: Optional[str] = None,
+        user_message: Optional[str] = None,
     ) -> Dict[str, Any]:
-        """Procesa una imagen o datos dentro de la sesión y retorna el estado actual del trámite."""
+        """Procesa una imagen, datos o mensaje dentro de la sesión y retorna el estado actual del trámite."""
         pass

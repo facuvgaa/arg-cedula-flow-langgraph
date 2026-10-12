@@ -37,11 +37,15 @@ mcp_client = McpInsuranceClientAdapter(base_url="http://localhost:8080")
 repository_adapter = PostgresVehicleCardRepositoryAdapter(AsyncSessionLocal)
 storage_adapter = StorageFactory.create()
 extractor_adapter = LlmExtractorFactory.create()
+missing_data_adapter = LlmExtractorFactory.create_missing_data_adapter()
+negotiator_adapter = LlmExtractorFactory.create_insurance_negotiator_adapter()
 
 workflow_adapter = LangGraphVehicleWorkflowAdapter(
     storage_port=storage_adapter,
     extractor_port=extractor_adapter,
     vehicle_repo=repository_adapter,
+    missing_data_port=missing_data_adapter,
+    negotiator_port=negotiator_adapter,
     mcp_client=mcp_client,
 )
 
@@ -53,6 +57,7 @@ async def process_card(
     session_id: Optional[str] = Form(None),
     year: Optional[int] = Form(None),
     postal_code: Optional[str] = Form(None),
+    user_message: Optional[str] = Form(None),
 ):
     current_session_id = session_id or str(uuid.uuid4())
     
@@ -67,8 +72,8 @@ async def process_card(
         file_name = file.filename or f"{current_session_id}.jpg"
         mime_type = file.content_type
 
-    if not file_bytes and year is None and postal_code is None:
-        raise HTTPException(status_code=400, detail="Debe proporcionar una imagen, el año o el código postal.")
+    if not file_bytes and year is None and postal_code is None and not user_message:
+        raise HTTPException(status_code=400, detail="Debe proporcionar una imagen, el año, el código postal o un mensaje.")
 
     result = await use_case.execute(
         session_id=current_session_id,
@@ -77,9 +82,11 @@ async def process_card(
         mime_type=mime_type,
         year=year,
         postal_code=postal_code,
+        user_message=user_message,
     )
 
     return result
+
 
 class HireInsuranceRequest(BaseModel):
     customer_name: str

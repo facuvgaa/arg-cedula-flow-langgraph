@@ -20,7 +20,6 @@ class McpInsuranceClientAdapter:
             async with client.stream("GET", sse_url, headers={"Accept": "text/event-stream"}) as sse_stream:
                 lines_iter = sse_stream.aiter_lines()
                 
-                # 1. Obtener endpoint de mensajes
                 message_endpoint = None
                 async for line in lines_iter:
                     if line.startswith("data:"):
@@ -32,7 +31,6 @@ class McpInsuranceClientAdapter:
 
                 post_url = f"{self._base_url}{message_endpoint}"
 
-                # 2. Inicializar sesión MCP
                 init_payload = {
                     "jsonrpc": "2.0",
                     "id": 1,
@@ -45,7 +43,6 @@ class McpInsuranceClientAdapter:
                 }
                 await client.post(post_url, json=init_payload)
 
-                # 3. Invocar herramienta tools/call
                 call_payload = {
                     "jsonrpc": "2.0",
                     "id": 2,
@@ -57,7 +54,6 @@ class McpInsuranceClientAdapter:
                 }
                 await client.post(post_url, json=call_payload)
 
-                # 4. Leer respuesta desde el stream SSE activo
                 async for line in lines_iter:
                     if line.startswith("data:"):
                         data_str = line.replace("data:", "").strip()
