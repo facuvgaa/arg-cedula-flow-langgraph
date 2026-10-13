@@ -7,10 +7,11 @@ from infraestructure.adapters.gemini_vehicle_extractor_adapter import VehicleExt
 from infraestructure.adapters.gemini_missing_data_adapter import GeminiMissingDataAdapter 
 from dotenv import load_dotenv
 
-from prueba.domain.ports.policy_knowledge_port import PolicyKnowledgePort
-from prueba.infraestructure.adapters.chroma_policy_knowledge_adapter import ChromaPolicyKnowledgeAdapter
+from domain.ports.policy_knowledge_port import PolicyKnowledgePort
+from infraestructure.adapters.chroma_policy_knowledge_adapter import ChromaPolicyKnowledgeAdapter
 
 load_dotenv()
+
 
 class LlmExtractorFactory:
     @staticmethod

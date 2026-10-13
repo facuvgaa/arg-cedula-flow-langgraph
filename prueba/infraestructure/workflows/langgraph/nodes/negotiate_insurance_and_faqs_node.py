@@ -1,14 +1,14 @@
 from typing import Any, Dict, Optional
-from domain.ports.insurance_negotiator_port import  InsuranceNegotiatorPort
+from domain.ports.insurance_negotiator_port import InsuranceNegotiatorPort
 from infraestructure.workflows.langgraph.state.cedula_workflow_state import CedulaWorkflowState
-from prueba.domain.ports.policy_knowledge_port import PolicyKnowledgePort
+from domain.ports.policy_knowledge_port import PolicyKnowledgePort
 
 
 class NegotiateInsuranceAndFaqsNode:
     def __init__(self, negotitation_port: InsuranceNegotiatorPort, knowledge_port: Optional[PolicyKnowledgePort] = None):
-
-        self._negotiator = negotitation_port,
+        self._negotiator = negotitation_port
         self._knowledge = knowledge_port
+
 
 
 
