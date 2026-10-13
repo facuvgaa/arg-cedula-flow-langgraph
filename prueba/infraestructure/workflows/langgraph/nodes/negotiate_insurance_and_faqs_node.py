@@ -1,11 +1,14 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 from domain.ports.insurance_negotiator_port import  InsuranceNegotiatorPort
 from infraestructure.workflows.langgraph.state.cedula_workflow_state import CedulaWorkflowState
+from prueba.domain.ports.policy_knowledge_port import PolicyKnowledgePort
 
 
 class NegotiateInsuranceAndFaqsNode:
-    def __init__(self, negotitation_port: InsuranceNegotiatorPort):
-        self._negotiator = negotitation_port
+    def __init__(self, negotitation_port: InsuranceNegotiatorPort, knowledge_port: Optional[PolicyKnowledgePort] = None):
+
+        self._negotiator = negotitation_port,
+        self._knowledge = knowledge_port
 
 
 
@@ -17,6 +20,15 @@ class NegotiateInsuranceAndFaqsNode:
         existing_phone = state.get("customer_phone")
         existing_coverage = state.get("selected_coverage")
 
+        clauses = []
+
+        if self._knowledge and user_message:
+            clauses = await self._knowledge.search_relevant_clauses(
+                query=user_message,
+                top_k=2,
+                coverage_filter=existing_coverage
+            )
+
         context = {
             "vehiculo": state.get("vehicle_data"),
             "year": state.get("year"),
@@ -24,6 +36,7 @@ class NegotiateInsuranceAndFaqsNode:
             "cobertura_seleccionada": existing_coverage,
             "email_registrado": existing_email,
             "celular_registrado": existing_phone,
+            "clausulas_oficiales_poliza": clauses,
         }
 
         result = await self._negotiator.negotiate(

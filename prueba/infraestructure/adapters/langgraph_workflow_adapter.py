@@ -8,6 +8,7 @@ from domain.ports.vehicle_extractor_port import VehicleExtractorPort
 from domain.ports.vehicle_card_repository_port import VehicleCardRepositoryPort
 from domain.ports.missing_data_message_port import MissingDataMessagePort
 from domain.ports.insurance_negotiator_port import InsuranceNegotiatorPort
+from domain.ports.policy_knowledge_port import PolicyKnowledgePort
 
 from infraestructure.adapters.mcp_insurance_client_adapter import McpInsuranceClientAdapter
 from infraestructure.workflows.langgraph.state.cedula_workflow_state import CedulaWorkflowState
@@ -17,6 +18,7 @@ from infraestructure.workflows.langgraph.nodes.calculate_quote_mcp_node import C
 from infraestructure.workflows.langgraph.nodes.request_missing_data_node import RequestMissingDataNode
 from infraestructure.workflows.langgraph.nodes.negotiate_insurance_and_faqs_node import NegotiateInsuranceAndFaqsNode
 from infraestructure.workflows.langgraph.nodes.add_mail_to_client_node import AddMailToClientNode
+
 
 def entry_router(state: CedulaWorkflowState) -> str:
     if state.get("user_message") and state.get("quote_result"):
@@ -47,6 +49,7 @@ class LangGraphVehicleWorkflowAdapter(VehicleWorkflowPort):
         vehicle_repo: VehicleCardRepositoryPort,
         missing_data_port: MissingDataMessagePort,
         negotiator_port: InsuranceNegotiatorPort,
+        knowledge_port: Optional[PolicyKnowledgePort] = None,
         mcp_client: Optional[McpInsuranceClientAdapter] = None,
         checkpointer: Optional[Any] = None,
     ):
@@ -61,7 +64,7 @@ class LangGraphVehicleWorkflowAdapter(VehicleWorkflowPort):
         finalize_node = FinalizeAndSave(self._repo)
         quote_node = CalculateQuoteMcpNode(self._mcp_client)
         missing_data_node = RequestMissingDataNode(self._missing_data_service)
-        negotator_node = NegotiateInsuranceAndFaqsNode(self._negotiator)
+        negotator_node = NegotiateInsuranceAndFaqsNode(self._negotiator, knowledge_port = knowledge_port)
         mail_node = AddMailToClientNode(self._mcp_client)
 
         workflow = StateGraph(CedulaWorkflowState)

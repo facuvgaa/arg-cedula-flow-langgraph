@@ -7,6 +7,9 @@ from infraestructure.adapters.gemini_vehicle_extractor_adapter import VehicleExt
 from infraestructure.adapters.gemini_missing_data_adapter import GeminiMissingDataAdapter 
 from dotenv import load_dotenv
 
+from prueba.domain.ports.policy_knowledge_port import PolicyKnowledgePort
+from prueba.infraestructure.adapters.chroma_policy_knowledge_adapter import ChromaPolicyKnowledgeAdapter
+
 load_dotenv()
 
 class LlmExtractorFactory:
@@ -48,3 +51,14 @@ class LlmExtractorFactory:
             return GeminiInsuranceNegotiatorAdapter(api_key=api_key, model_name=model_name)
         else:
             raise ValueError(f"Proveedor de LLM no soportado: '{provider}'")
+
+    @staticmethod
+    def create_policy_knowledge_adapter() -> PolicyKnowledgePort:
+        api_key = os.getenv("GEMINI_API_KEY")
+        chroma_host = os.getenv("CHROMA_HOST", "localhost")
+        chroma_port = int(os.getenv("CHROMA_PORT", 8000))
+        return ChromaPolicyKnowledgeAdapter(
+            api_key=api_key,
+            chroma_host=chroma_host,
+            chroma_port=chroma_port,
+        )

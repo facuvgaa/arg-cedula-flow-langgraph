@@ -39,6 +39,7 @@ storage_adapter = StorageFactory.create()
 extractor_adapter = LlmExtractorFactory.create()
 missing_data_adapter = LlmExtractorFactory.create_missing_data_adapter()
 negotiator_adapter = LlmExtractorFactory.create_insurance_negotiator_adapter()
+knowledger_adapter = LlmExtractorFactory.create_policy_knowledge_adapter()
 
 workflow_adapter = LangGraphVehicleWorkflowAdapter(
     storage_port=storage_adapter,
@@ -46,6 +47,7 @@ workflow_adapter = LangGraphVehicleWorkflowAdapter(
     vehicle_repo=repository_adapter,
     missing_data_port=missing_data_adapter,
     negotiator_port=negotiator_adapter,
+    knowledge_port=knowledger_adapter,
     mcp_client=mcp_client,
 )
 

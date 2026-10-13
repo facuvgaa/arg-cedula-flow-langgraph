@@ -43,7 +43,21 @@ services:
       - pricing_pg_data:/var/lib/postgresql/data
       - ./init-pricing.sql:/docker-entrypoint-initdb.d/init-pricing.sql
 
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: chromadb
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+      - PERSIST_DIRECTORY=/chroma/chroma
+      - ANONYMIZED_TELEMETRY=FALSE
+    restart: unless-stopped
+
 volumes:
   pricing_pg_data:
   minio_data:
   pgdata:
+  chroma_data:
