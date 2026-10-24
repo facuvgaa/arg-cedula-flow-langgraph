@@ -1,7 +1,7 @@
 import pytest
 import json
 from unittest.mock import AsyncMock, MagicMock
-from infraestructure.adapters.gemini_insurance_negotiator_adapter import GeminiInsuranceNegotiatorAdapter
+from infraestructure.adapters.google import GeminiInsuranceNegotiatorAdapter
 
 @pytest.mark.asyncio
 async def test_negotiator_adapter_asking_question():

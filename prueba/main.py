@@ -1,19 +1,24 @@
 import uuid
 from contextlib import asynccontextmanager
 from typing import Optional
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from application.use_case.process_vehicle_card import ProcessVehicleCardUseCase
-from infraestructure.adapters.mcp_insurance_client_adapter import McpInsuranceClientAdapter
-from infraestructure.adapters.postgres_vehicle_card_repository_adapter import (
+from infraestructure.adapters.mcp import McpInsuranceClientAdapter
+from infraestructure.adapters.postgres import (
     PostgresVehicleCardRepositoryAdapter,
 )
 from infraestructure.database.models import Base
 from infraestructure.database.session import AsyncSessionLocal, engine
 from infraestructure.factories.llm_extractor_factory import LlmExtractorFactory
 from infraestructure.factories.storage_factory import StorageFactory
-from infraestructure.adapters.langgraph_workflow_adapter import (
+from infraestructure.workflows import (
     LangGraphVehicleWorkflowAdapter,
 )
 
@@ -32,6 +37,14 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(title="Vehicle Card & Insurance MCP API", lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 mcp_client = McpInsuranceClientAdapter(base_url="http://localhost:8080")
 repository_adapter = PostgresVehicleCardRepositoryAdapter(AsyncSessionLocal)
@@ -77,17 +90,23 @@ async def process_card(
     if not file_bytes and year is None and postal_code is None and not user_message:
         raise HTTPException(status_code=400, detail="Debe proporcionar una imagen, el año, el código postal o un mensaje.")
 
-    result = await use_case.execute(
-        session_id=current_session_id,
-        file_bytes=file_bytes,
-        file_name=file_name,
-        mime_type=mime_type,
-        year=year,
-        postal_code=postal_code,
-        user_message=user_message,
-    )
-
-    return result
+    try:
+        result = await use_case.execute(
+            session_id=current_session_id,
+            file_bytes=file_bytes,
+            file_name=file_name,
+            mime_type=mime_type,
+            year=year,
+            postal_code=postal_code,
+            user_message=user_message,
+        )
+        return result
+    except Exception as e:
+        return {
+            "session_id": current_session_id,
+            "status": "ERROR",
+            "message": f"Error al procesar la solicitud: {str(e)}",
+        }
 
 
 class HireInsuranceRequest(BaseModel):
@@ -127,3 +146,8 @@ async def hire_insurance(request: HireInsuranceRequest):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al emitir póliza vía MCP: {str(e)}")
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="0.0.0.0", port=8001, reload=True)

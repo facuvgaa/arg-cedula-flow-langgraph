@@ -3,7 +3,7 @@ services:
     image: postgres:15
     container_name: postgres
     ports:
-      - "5432:5432"
+      - "5434:5432"
     environment:
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mysecretpassword
@@ -55,9 +55,44 @@ services:
       - PERSIST_DIRECTORY=/chroma/chroma
       - ANONYMIZED_TELEMETRY=FALSE
     restart: unless-stopped
+  
+  langfuse-db:
+    image: postgres:16
+    container_name: seguros-langfuse-db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_DB=langfuse
+    volumes:
+      - langfuse_db_data:/var/lib/postgresql/data
+    ports:
+      - "5435:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d langfuse"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  
+  langfuse-server:
+    image: langfuse/langfuse:2
+    container_name: seguros-langfuse-server
+    depends_on:
+      langfuse-db:
+        condition: service_healthy
+    ports:
+      - "3100:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXTAUTH_URL=http://localhost:3100
+      - NEXTAUTH_SECRET=un_secreto_muy_largo_y_seguro_cambiame_123456
+      - SALT=otro_secreto_aleatorio_para_encriptacion_123456
+      - DATABASE_URL=postgresql://postgres:mysecretpassword@langfuse-db:5432/langfuse
+      - TELEMETRY_ENABLED=true
+
 
 volumes:
   pricing_pg_data:
   minio_data:
   pgdata:
   chroma_data:
+  langfuse_db_data:

@@ -1,6 +1,6 @@
 import os
 from domain.ports.file_storage_port import FileStoragePort
-from infraestructure.adapters.minio_file_storage_adapter import MinioFileStorageAdapter
+from infraestructure.adapters.minio import MinioFileStorageAdapter
 
 class StorageFactory:
     @staticmethod

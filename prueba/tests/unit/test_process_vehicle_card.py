@@ -5,8 +5,8 @@ from domain.ports.vehicle_extractor_port import VehicleExtractorPort
 from domain.ports.vehicle_card_repository_port import VehicleCardRepositoryPort
 from domain.ports.missing_data_message_port import MissingDataMessagePort
 from domain.ports.insurance_negotiator_port import InsuranceNegotiatorPort
-from infraestructure.adapters.mcp_insurance_client_adapter import McpInsuranceClientAdapter
-from infraestructure.adapters.langgraph_workflow_adapter import LangGraphVehicleWorkflowAdapter
+from infraestructure.adapters.mcp import McpInsuranceClientAdapter
+from infraestructure.workflows import LangGraphVehicleWorkflowAdapter
 
 @pytest.mark.asyncio
 async def test_workflow_extracts_and_triggers_mcp_quote():

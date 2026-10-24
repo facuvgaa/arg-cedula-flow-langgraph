@@ -1,8 +1,8 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 from domain.ports.policy_knowledge_port import PolicyKnowledgePort
-from infraestructure.adapters.chroma_policy_knowledge_adapter import ChromaPolicyKnowledgeAdapter
-from infraestructure.workflows.langgraph.nodes.negotiate_insurance_and_faqs_node import NegotiateInsuranceAndFaqsNode
+from infraestructure.adapters.chroma import ChromaPolicyKnowledgeAdapter
+from infraestructure.workflows.nodes.negotiate_insurance_and_faqs_node import NegotiateInsuranceAndFaqsNode
 from domain.ports.insurance_negotiator_port import InsuranceNegotiatorPort
 
 @pytest.mark.asyncio
