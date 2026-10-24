@@ -13,3 +13,4 @@ python-multipart
 pypdf
 chromadb
 boto3
+pytest
