@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/Checkout@v4
+        uses: actions/checkout@v4
       
       - name: set up python 
         uses: actions/setup-python@v5
@@ -31,4 +31,26 @@ jobs:
       - name: run unit test 
         working-directory: prueba
         run: |
-          pytest test/unit/
+          pytest tests/unit/
+  
+  build-frontend:
+    name: Front build & typecheck (react + vite)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: set up node.js 
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      
+      - name: Install dependencies
+        working-directory: frontend 
+        run: npm install
+
+      - name: build & typeScrip check 
+        working-directory: frontend
+        run: npm run build
+      

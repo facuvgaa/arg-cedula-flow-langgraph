@@ -14,3 +14,5 @@ pypdf
 chromadb
 boto3
 pytest
+pytest-asyncio
+httpx
