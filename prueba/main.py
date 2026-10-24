@@ -1,3 +1,4 @@
+import os
 import uuid
 from contextlib import asynccontextmanager
 from typing import Optional
@@ -46,7 +47,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-mcp_client = McpInsuranceClientAdapter(base_url="http://localhost:8080")
+mcp_base_url = os.getenv("MCP_BASE_URL", "http://localhost:8080")
+mcp_client = McpInsuranceClientAdapter(base_url=mcp_base_url)
 repository_adapter = PostgresVehicleCardRepositoryAdapter(AsyncSessionLocal)
 storage_adapter = StorageFactory.create()
 extractor_adapter = LlmExtractorFactory.create()

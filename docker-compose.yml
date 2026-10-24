@@ -89,6 +89,38 @@ services:
       - DATABASE_URL=postgresql://postgres:mysecretpassword@langfuse-db:5432/langfuse
       - TELEMETRY_ENABLED=true
 
+  backend:
+    build:
+      context: ./prueba
+      dockerfile: Dockerfile
+    container_name: seguros-backend
+    ports:
+      - "8001:8001"
+    env_file:
+      - ./prueba/.env
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://myuser:mysecretpassword@db:5432/vehicle_db
+      - MINIO_ENDPOINT=minio:9000
+      - CHROMA_HOST=chromadb
+      - CHROMA_PORT=8000
+      - MCP_BASE_URL=http://host.docker.internal:8080
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - db
+      - chromadb
+      - minio
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: seguros-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
 
 volumes:
   pricing_pg_data:
