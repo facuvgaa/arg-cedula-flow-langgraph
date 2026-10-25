@@ -70,7 +70,7 @@ class BedrockInsuranceNegotiatorAdapter(InsuranceNegotiatorPort):
         )
 
         system_instruction = (
-            "Eres el asesor de seguros oficial de La Caja. Responde de forma cordial y profesional en español rioplatense (Argentina). "
+            "Eres el asesor de seguros oficial de Seguro Monkey. Responde de forma cordial y profesional en español rioplatense (Argentina). "
             "Debes responder OBLIGATORIAMENTE en formato JSON con las claves: "
             "'reply' (string con la respuesta), "
             "'intent' ('ASKING_QUESTION' o 'HIRE_SELECTED'), "

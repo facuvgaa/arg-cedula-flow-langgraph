@@ -151,8 +151,8 @@ export default function App() {
     {
       id: 'welcome',
       role: 'assistant',
-      content: '¡Hola! Soy tu asistente de seguros de La Caja. Podés subir la foto de tu cédula verde o azul para extraer los datos de tu vehículo y cotizar al instante con AWS Bedrock AI.',
-      source: 'AWS Bedrock Vision OCR & Asistente La Caja'
+      content: '¡Hola! Soy tu asistente de seguros de Seguro Monkey. Podés subir la foto de tu cédula verde o azul para extraer los datos de tu vehículo y cotizar al instante con AWS Bedrock AI.',
+      source: 'AWS Bedrock Vision OCR & Asistente Seguro Monkey'
     }
   ]);
 
@@ -205,7 +205,7 @@ export default function App() {
       let source = "AWS Bedrock AI Asesor";
       if (data.status === "QUOTES_AVAILABLE") source = "Servidor MCP & Motor Tarifario";
       else if (data.status === "POLICY_ISSUED") source = "Servidor MCP - Emisión de Póliza";
-      else if (data.quote_result) source = "RAG La Caja - Póliza Oficial";
+      else if (data.quote_result) source = "RAG Seguro Monkey - Póliza Oficial";
       else if (data.vehicle_data) source = `AWS Bedrock Vision OCR - Cédula N° ${data.vehicle_data.dominio || ''}`;
 
       setMessages(prev => [
@@ -389,7 +389,7 @@ export default function App() {
               Cotizador y Asistente IA
             </h1>
             <p className="text-xs md:text-sm text-neutral-400 mt-0.5">
-              La Caja Seguros - Asistencia e Inteligencia Documental
+              Seguro Monkey - Asistencia e Inteligencia Documental
             </p>
           </div>
 
