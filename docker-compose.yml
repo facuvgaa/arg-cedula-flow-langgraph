@@ -31,14 +31,14 @@ services:
 
   pricing-postgres:
     image: postgres:15-alpine
-    container_name: pricing_postgres
+    container_name: seguros-pricing-postgres
     restart: always
     environment:
       POSTGRES_DB: pricing_db
       POSTGRES_USER: pricing_user
       POSTGRES_PASSWORD: pricing_secret
     ports:
-      - "5433:5432"
+      - "5436:5432"
     volumes:
       - pricing_pg_data:/var/lib/postgresql/data
       - ./init-pricing.sql:/docker-entrypoint-initdb.d/init-pricing.sql
@@ -103,14 +103,26 @@ services:
       - MINIO_ENDPOINT=minio:9000
       - CHROMA_HOST=chromadb
       - CHROMA_PORT=8000
-      - MCP_BASE_URL=http://host.docker.internal:8080
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - MCP_BASE_URL=http://mcp-server:8080
     depends_on:
       - db
       - chromadb
       - minio
-
+      - mcp-server
+  
+  mcp-server:
+    build:
+      context: ./demo
+      dockerfile: Dockerfile
+    container_name: seguros-mcp-server
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://pricing-postgres:5432/pricing_db
+      - SPRING_DATASOURCE_USERNAME=pricing_user
+      - SPRING_DATASOURCE_PASSWORD=pricing_secret
+    depends_on:
+      - pricing-postgres
   frontend:
     build:
       context: ./frontend
