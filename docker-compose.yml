@@ -104,11 +104,13 @@ services:
       - CHROMA_HOST=chromadb
       - CHROMA_PORT=8000
       - MCP_BASE_URL=http://mcp-server:8080
+      - LANGFUSE_HOST=http://langfuse-server:3000
     depends_on:
       - db
       - chromadb
       - minio
       - mcp-server
+      - langfuse-server
   
   mcp-server:
     build:

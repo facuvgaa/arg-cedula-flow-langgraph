@@ -6,6 +6,14 @@ from pydantic import BaseModel, Field
 import boto3
 import httpx
 
+try:
+    from langfuse.decorators import observe, langfuse_context
+except ImportError:
+    def observe(*args, **kwargs):
+        def decorator(f):
+            return f
+        return decorator
+
 from domain.ports.insurance_negotiator_port import InsuranceNegotiatorPort
 from domain.prompt.prompt_insurance_negotiator import PromptInsuranceNegotiator
 
@@ -57,6 +65,7 @@ class BedrockInsuranceNegotiatorAdapter(InsuranceNegotiatorPort):
         )
         self._boto_client = None
 
+    @observe(as_type="generation", name="bedrock_negotiate_insurance")
     async def negotiate(
         self,
         user_message: str,
@@ -115,6 +124,15 @@ class BedrockInsuranceNegotiatorAdapter(InsuranceNegotiatorPort):
                 inferenceConfig={"temperature": 0.2},
             )
             response_text = response["output"]["message"]["content"][0]["text"]
+
+        try:
+            langfuse_context.update_current_observation(
+                model=self._model,
+                input={"user_message": user_message, "context": context},
+                output=response_text,
+            )
+        except Exception:
+            pass
 
         cleaned_json = response_text.strip()
         if cleaned_json.startswith("```"):

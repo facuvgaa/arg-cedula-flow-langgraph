@@ -6,6 +6,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+try:
+    from langfuse.decorators import observe, langfuse_context
+except ImportError:
+    def observe(*args, **kwargs):
+        def decorator(f):
+            return f
+        return decorator
+
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -69,6 +77,7 @@ workflow_adapter = LangGraphVehicleWorkflowAdapter(
 use_case = ProcessVehicleCardUseCase(workflow_port=workflow_adapter)
 
 @app.post("/v1/vehicle-cards/process")
+@observe(name="process_vehicle_card")
 async def process_card(
     file: Optional[UploadFile] = File(None),
     session_id: Optional[str] = Form(None),
@@ -77,6 +86,14 @@ async def process_card(
     user_message: Optional[str] = Form(None),
 ):
     current_session_id = session_id or str(uuid.uuid4())
+    try:
+        langfuse_context.update_current_trace(
+            session_id=current_session_id,
+            user_id="customer",
+            tags=["vehicle_card_flow"],
+        )
+    except Exception:
+        pass
     
     file_bytes = None
     file_name = None

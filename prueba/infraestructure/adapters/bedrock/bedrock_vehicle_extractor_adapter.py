@@ -6,6 +6,14 @@ from pydantic import BaseModel, Field
 import boto3
 import httpx
 
+try:
+    from langfuse.decorators import observe, langfuse_context
+except ImportError:
+    def observe(*args, **kwargs):
+        def decorator(f):
+            return f
+        return decorator
+
 from domain.ports.vehicle_extractor_port import VehicleExtractorPort
 from domain.prompt.prompt_extraction import PromptExtraction
 
@@ -76,6 +84,7 @@ class BedrockVehicleExtractorAdapter(VehicleExtractorPort):
         if not self._base_url:
             self._boto_client = boto3.client("bedrock-runtime", region_name=self._region)
 
+    @observe(as_type="generation", name="bedrock_vision_extract_vehicle_card")
     async def extract_from_image(
         self, image_bytes: bytes, mime_type: str, file_storage_path: str = ""
     ) -> Dict[str, Any]:
@@ -166,6 +175,15 @@ class BedrockVehicleExtractorAdapter(VehicleExtractorPort):
                 inferenceConfig={"temperature": 0.0},
             )
             response_text = response["output"]["message"]["content"][0]["text"]
+
+        try:
+            langfuse_context.update_current_observation(
+                model=self._model,
+                input=f"Image ({len(image_bytes)} bytes, mime={mime_type})",
+                output=response_text,
+            )
+        except Exception:
+            pass
 
         # Limpiar posibles bloques markdown y extraer el objeto JSON
         cleaned_json = response_text.strip()
