@@ -508,13 +508,22 @@ export default function App() {
               e.preventDefault();
               handleSendMessage();
             }}
+            autoComplete="off"
             className="p-3 md:p-4 border-t border-neutral-800 bg-[#111722] flex items-center gap-2"
           >
             <input
               type="text"
+              name="chat-user-message"
+              id="chat-user-message"
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck={false}
+              data-lpignore="true"
+              data-form-type="other"
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
-              placeholder="Escriba su consulta o email para emitir..."
+              placeholder="Escribí tu consulta a Seguro Monkey..."
               disabled={isLoading}
               className="flex-1 bg-[#171f2d] border border-neutral-700/80 rounded-full px-5 py-2.5 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-sky-500 transition-colors disabled:opacity-50"
             />
