@@ -1,0 +1,142 @@
+services:
+  db:
+    image: postgres:15
+    container_name: seguros-db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-myuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mysecretpassword}
+      POSTGRES_DB: vehicle_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  minio:
+    image: cgr.dev/chainguard/minio:latest
+    container_name: seguros-minio
+    restart: always
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    command: server /data --console-address ":9001"
+
+  redis:
+    image: redis:7-alpine
+    container_name: seguros-redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+  pricing-postgres:
+    image: postgres:15-alpine
+    container_name: seguros-pricing-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: pricing_db
+      POSTGRES_USER: ${PRICING_USER:-pricing_user}
+      POSTGRES_PASSWORD: ${PRICING_PASSWORD:-pricing_secret}
+    volumes:
+      - pricing_pg_data:/var/lib/postgresql/data
+      - ./init-pricing.sql:/docker-entrypoint-initdb.d/init-pricing.sql
+
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: seguros-chromadb
+    restart: always
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+      - PERSIST_DIRECTORY=/chroma/chroma
+      - ANONYMIZED_TELEMETRY=FALSE
+
+  langfuse-db:
+    image: postgres:16
+    container_name: seguros-langfuse-db
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_DB=langfuse
+    volumes:
+      - langfuse_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d langfuse"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  langfuse-server:
+    image: langfuse/langfuse:2
+    container_name: seguros-langfuse-server
+    restart: always
+    depends_on:
+      langfuse-db:
+        condition: service_healthy
+    ports:
+      - "3100:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXTAUTH_URL=http://localhost:3100
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-un_secreto_muy_largo_y_seguro_cambiame_123456}
+      - SALT=${SALT:-otro_secreto_aleatorio_para_encriptacion_123456}
+      - DATABASE_URL=postgresql://postgres:mysecretpassword@langfuse-db:5432/langfuse
+      - TELEMETRY_ENABLED=true
+
+  mcp-server:
+    image: ghcr.io/facuvgaa/arg-cedula-flow-langgraph/demo:latest
+    container_name: seguros-mcp-server
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://pricing-postgres:5432/pricing_db
+      - SPRING_DATASOURCE_USERNAME=${PRICING_USER:-pricing_user}
+      - SPRING_DATASOURCE_PASSWORD=${PRICING_PASSWORD:-pricing_secret}
+    depends_on:
+      - pricing-postgres
+
+  backend:
+    image: ghcr.io/facuvgaa/arg-cedula-flow-langgraph/backend:latest
+    container_name: seguros-backend
+    restart: always
+    ports:
+      - "8001:8001"
+    env_file:
+      - path: .env.production
+        required: false
+      - path: ./prueba/.env
+        required: false
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-myuser}:${POSTGRES_PASSWORD:-mysecretpassword}@db:5432/vehicle_db
+      - MINIO_ENDPOINT=minio:9000
+      - CHROMA_HOST=chromadb
+      - CHROMA_PORT=8000
+      - MCP_BASE_URL=http://mcp-server:8080
+    depends_on:
+      - db
+      - chromadb
+      - minio
+      - mcp-server
+
+  frontend:
+    image: ghcr.io/facuvgaa/arg-cedula-flow-langgraph/frontend:latest
+    container_name: seguros-frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  pricing_pg_data:
+  minio_data:
+  pgdata:
+  chroma_data:
+  langfuse_db_data:
