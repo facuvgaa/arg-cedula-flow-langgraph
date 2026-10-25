@@ -53,4 +53,45 @@ jobs:
       - name: build & typeScrip check 
         working-directory: frontend
         run: npm run build
+  
+  build-and-push-docker:
+    name: build & push docker images to ghcr
+    runs-on: ubuntu-latest
+    needs: [test-python, build-frontend]
+    if: github.ref == 'ref/heads/main' && github.event_name == 'push'
+    permissions:
+        contents: read
+        packages: write
+    steps:
+      - name: Checkout repository 
+        uses: actions/checkout@v4
       
+      - name: log in to github container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{github.actor}}
+          password: ${{secrets.GITHUB_TOKEN}}
+      - name: set up docket buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push Backend Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./prueba
+          file: ./prueba/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/backend:latest
+            ghcr.io/${{ github.repository }}/backend:${{ github.sha }}
+      
+      - name: Build and push Frontend Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/backend:latest
+            ghcr.io/${{ github.repository }}/backend:${{ github.sha }}
+
