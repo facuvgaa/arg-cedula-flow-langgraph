@@ -1,5 +1,10 @@
 # 🚗 Insurtech AI Agent: Automated Vehicle Card Flow & Policy Negotiation
 
+<p align="center">
+  <b>🇪🇸 Versión en Español</b> •
+  <a href="README.en.md">🇬🇧 English Version</a>
+</p>
+
 [![CI Pipeline](https://github.com/facuvgaa/arg-cedula-flow-langgraph/actions/workflows/ci.yml/badge.svg)](https://github.com/facuvgaa/arg-cedula-flow-langgraph/actions/workflows/ci.yml)
 [![Docker](https://img.shields.io/badge/Docker-Containers-blue.svg?logo=docker)](https://www.docker.com/)
 [![Python 3.12](https://img.shields.io/badge/Python-3.12-blue.svg?logo=python)](https://www.python.org/)
