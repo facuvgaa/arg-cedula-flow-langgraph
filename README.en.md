@@ -211,7 +211,9 @@ mvn clean test
 
 ---
 
-## 📄 License
+## 📄 License & Intellectual Property
 
-This project is licensed under the MIT License for educational and enterprise architectural demonstration purposes.
+Copyright © 2026 **Walter Facundo Vega**. All rights reserved.
+
+The source code, architecture, prompts, design, and documentation in this repository are proprietary and the exclusive intellectual property of the author. Unauthorized copying, reproduction, modification, distribution, or commercial exploitation is strictly prohibited without prior written consent. Access is granted solely for technical review, evaluation, and portfolio assessment purposes.
 
